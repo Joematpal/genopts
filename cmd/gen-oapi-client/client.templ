@@ -1,0 +1,41 @@
+{{define "client"}}
+package {{.Package}}
+
+import (
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "net/url"
+)
+
+type HTTPDoer interface {
+    Do(*http.Request) (*http.Response, error)
+}
+
+type Logger interface {
+    Debug(string, ...any)
+    Info(string, ...any)
+    Warn(string, ...any)
+    Error(string, ...any)
+}
+
+type Client struct {
+    httpDoer HTTPDoer
+    host string // needs to include the protocol
+    logger Logger
+    /// add extra options
+    /// i.e. workspace, namespace
+}
+
+func (c Client) isValid() error {
+    return nil
+}
+
+
+{{/* Iterate over all paths and their methods */}}
+    {{range $path, $methods := .OAPIFile.Paths}}
+    {{range $method, $ep := getEndpointOnPath $methods}}
+        {{template "method" dict "Path" $path "Method" $method "Endpoint" $ep}}
+    {{end}}
+    {{end}}
+{{end}}

@@ -1,4 +1,4 @@
-//go:generate genopts --file=users.go
+//go:generate genopts -- file=users.go
 package myapp
 
 type User struct {

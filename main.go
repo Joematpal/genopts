@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"flag"
-	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -80,7 +79,6 @@ func main() {
 				if strings.Contains(tag, `with:"-"`) {
 					for _, name := range field.Names {
 						_, ok := fieldsCheck[name.Name]
-						fmt.Println(fieldsCheck, name)
 						if ok {
 							fieldsCheck[name.Name][ts.Name.Name] = struct{}{}
 						} else {
@@ -109,7 +107,6 @@ func main() {
 				if structs, ok := fieldsCheck[field.Name]; ok && len(structs) > 1 {
 					if _, ok := structs[ts.Name.Name]; ok {
 						hasFieldDuplicationAcrossStructsInPackage = true
-						fmt.Println("has dup field")
 					}
 				}
 			}

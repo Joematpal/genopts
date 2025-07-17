@@ -1,0 +1,41 @@
+
+{{define "method"}}
+func (c *Client) {{GetMethodName .Method .Path .Endpoint}}({{getEndpointParameters .Method .Path .Endpoint}}) (
+	{{- if getEndpointResponse .Endpoint -}}
+		{{- getEndpointResponse .Endpoint -}}, 
+	{{- else -}} 
+	{{- end -}} error) {
+	q := url.Values{}
+	// conditionally check if query params or a body
+
+{{with $fp := .Endpoint.Parameters}}
+	{{range $p := $fp}}
+	{{- if eq $p.In "query"}}
+		q.Set("{{$p.Name}}", {{ToCamel $p.Name}})
+	{{- end}}
+	{{end}}
+{{end}}
+
+	// TODO: conditionally check if there is a body to stream
+
+	req, err := http.NewRequest("{{.Method}}", c.host+"{{.Path}}"+"?"+q.Encode(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.httpDoer.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("http do: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// conditionally check the decode; and graby the error stuff
+	out := {{getEndpointResponse .Endpoint }}{}
+
+	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
+		return nil, fmt.Errorf("decode: %v", err)
+	}
+	return out, nil
+}
+{{end}}
